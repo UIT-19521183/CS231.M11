@@ -6,6 +6,8 @@
   - https://github.com/NestorRV/HOG
   - https://minhng.info/tutorials/hog-huan-luyen-mo-hinh-phan-loai-nguoi.html
   - https://www.pyimagesearch.com/2014/11/10/histogram-oriented-gradients-object-detection/
+  - https://codelungtung.wordpress.com/2018/10/23/object-detection-6-buoc-de-xay-dung-object-detector-voi-hog-va-linear-svm/
+  - https://debuggercafe.com/image-recognition-using-histogram-of-oriented-gradients-hog-descriptor/
 4. Link về Segmentation:
   - https://github.com/adelizer/pedestrians-detection
 
