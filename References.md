@@ -10,4 +10,5 @@
   - https://debuggercafe.com/image-recognition-using-histogram-of-oriented-gradients-hog-descriptor/
 4. Link về Segmentation:
   - https://github.com/adelizer/pedestrians-detection
+  - https://github.com/divamgupta/image-segmentation-keras
 
