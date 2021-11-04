@@ -11,4 +11,7 @@
 4. Link về Segmentation:
   - https://github.com/adelizer/pedestrians-detection
   - https://github.com/divamgupta/image-segmentation-keras
+5. Link về Mask RCNN
+- https://machinelearningmastery.com/how-to-train-an-object-detection-model-with-keras/
+- https://github.com/matterport/Mask_RCNN
 
