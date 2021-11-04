@@ -13,6 +13,15 @@ parser = argparse.ArgumentParser(description='Parse Training Directory')
 parser.add_argument('--path', help='Path to directory contraining training images')
 
 # Thư mục train gồm: thư mục pos chứa các ảnh có người và thư mục neg chứa các ảnh không có người
+# train
+# |---pos
+# |   |---images
+# |   |---annotations
+# |
+# |---neg
+#     |---images
+#     |---annotations (không có cũng được)
+
 args = parser.parse_args()
 train_dir = args.path
 pos_dir = os.path.join(train_dir, 'pos')
