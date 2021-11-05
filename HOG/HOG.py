@@ -57,7 +57,7 @@ def hog_of_cell(cell_size, G_cell, theta_cell):
   return bins
 
 # Chuẩn hóa HOG của tất cá các cell
-def normalize_gradients(hog, block_size):
+def normalize_block(hog, block_size):
   '''
   hog: HOG của tất cả các cell trong ảnh, mỗi cell là 9-bin histogram (mảng 9 phần tử)
   block_size: kích thước block (theo đơn vị cell) để chuẩn hóa theo từng block. 
@@ -68,6 +68,7 @@ def normalize_gradients(hog, block_size):
   block_row, block_col = block_size
 
   for i in range(0, hog_row - block_row + 1, 1):
+    hog_feature_row = []
     for j in range(0, hog_col - block_col + 1, 1):
       block = hog[i : i + block_row, j : j + block_col] 
       block = block.flatten() # flatten từng block, mỗi block là 1 vector 36 phần tử (do mỗi cell là mảng 9 phần tử)
@@ -76,22 +77,37 @@ def normalize_gradients(hog, block_size):
       normalized = np.linalg.norm(block) # tính độ lớn vector của block (L2 norm)
       if normalized != 0: # nếu độ lớn của vector != 0 thì chia mọi giá trị của block cho độ lớn để chuẩn hóa
         normalized_block /= normalized
-
-      hog_feature_vector.append(normalized_block) # Thêm vector 1x36 đã chuẩn hóa vào HOG feature vector
+      hog_feature_row.append(normalized_block)
+    hog_feature_vector.append(hog_feature_row) # Thêm vector 1x36 đã chuẩn hóa vào HOG feature vector
 
   hog_feature_vector=np.array(hog_feature_vector)
   # mỗi ảnh 64 x 128 có 8 x 16 cell, tức 7 x 15 = 105 block. 
   # mỗi block là vector 36 phần tử => HOG feature vector có 36 x 105 = 3780 phàn tử
-  return hog_feature_vector.flatten()
+  return hog_feature_vector
 
-def extract_hog_feature_vector(gray, cell_size, block_size):
+def resize_closest(gray, cell_size):
+  w = int(gray.shape[1]/cell_size[1])*cell_size[1]
+  h = int(gray.shape[0]/cell_size[0])*cell_size[0]
+  if w < 64:
+    gray = cv2.resize(gray, (64, h))
+  elif h < 128:
+    gray = cv2.resize(gray, (w, 128))
+  else:
+    gray = cv2.resize(gray, (w, h))
+  return gray
+
+def extract_hog_feature_vector(gray, cell_size, block_size, resize = True, flatten = True):
   '''
   gray: ảnh mức xám cần trích xuất đặc trưng HOG
   cell_size: kích thước cell. VD: (8 x 8)
   block_size: kích thước block tính theo đơn vị cell. VD: (2 x 2) tức mỗi block gồm 2 cell x 2 cell
   '''
-  if gray.shape[0] != 128 or gray.shape[1] != 64:
-    gray = cv2.resize(gray, (64, 128))
+  if resize:
+    if gray.shape[0] != 128 or gray.shape[1] != 64:
+      gray = cv2.resize(gray, (64, 128))
+  else:
+    gray = resize_closest(gray, cell_size)
+
   row, col = gray.shape
   cell_row, cell_col = cell_size
 
@@ -107,7 +123,11 @@ def extract_hog_feature_vector(gray, cell_size, block_size):
     hog.append(hog_row)
 
   hog = np.array(hog)
-  hog_feature_vector = normalize_gradients(hog, block_size) # chuẩn hóa hog của từng cell ra HOG feature vector kích thước 1 x 3780
-  return hog_feature_vector
+  hog_feature_vector = normalize_block(hog, block_size) # chuẩn hóa hog của từng cell ra HOG feature vector kích thước 1 x 3780
+  if flatten:
+    hog_feature_vector = hog_feature_vector.flatten()
+    return hog_feature_vector
+  else:
+    return hog_feature_vector, gray.shape
 
 # Tham khảo notebook bạn Nguyễn Lâm Thảo Vy: https://colab.research.google.com/drive/1bSEOYGFWYkh476X1YR6rLlLZnx6Jj77O?usp=sharing
