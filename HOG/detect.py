@@ -33,19 +33,18 @@ for image in os.listdir(detect_dir):
   img = cv2.imread(os.path.join(detect_dir, image))
   gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
   
-  scales = np.arange(0.25, 2.01, 0.25) # Tạo pyramid chứa các ảnh resize với tỉ lệ 0.5, 1 (ảnh gốc), 1.5 
+  scales = np.arange(0.25, 2.01, 0.25) # Tạo pyramid chứa các ảnh resize với tỉ lệ 0.25, 0.5, 0.75, 1 (ảnh gốc), 1.25, 1.5, 1.75, 2 
   scaled_grays = pyramid(gray_img, scales)
+  
   for gray, scale in scaled_grays: # Duyệt qua từng ảnh mức xám ở các tỉ lệ khác nhau
     feature, new_shape = extract_hog_feature_vector(gray, (8, 8), (2, 2), resize = False, flatten = False)
-    print('s', feature.shape, new_shape)
     max_x, max_y =  int((new_shape[1] - window_size[0])/8),  int((new_shape[0] - window_size[1])/8)
-    print('max', max_x, max_y)
     step_x, step_y = int(step_size[0]/8), int(step_size[1]/8)
     if step_x == 0:
       step_x = 1
     if step_y == 0:
       step_y = 1
-    for x in range(0, max_x + 1, step_x): # Trượt cưa sổ qua toàn bộ ảnh từ trái qua phải, trên xuống dưới
+    for x in range(0, max_x + 1, step_x): # Trượt cửa sổ qua toàn bộ ảnh từ trái qua phải, trên xuống dưới
       for y in range(0, max_y + 1, step_y):
         #print(x, y)
         #cropped = gray[i : i + window_size[0], j : j + window_size[1]] # Cắt ảnh từ cửa số và predict
