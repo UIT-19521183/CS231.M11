@@ -110,6 +110,9 @@ def extract_hog_feature_vector(gray, cell_size, block_size, resize = True, flatt
 
   row, col = gray.shape
   cell_row, cell_col = cell_size
+  #Xử lý trường hợp rol, cow k chia hết cho cell_size
+  row=(row//cell_row)*cell_row
+  col=(col//cell_col)*cell_col
 
   G, theta = get_gradient(gray) # Tính độ lớn và hướng của gradient cho ảnh mức xám
   hog = []
