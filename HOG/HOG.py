@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from collections import deque 
 
 # Tính độ lớn và hướng của gradient cho toàn bộ ảnh img
 def get_gradient(img):
@@ -63,12 +64,12 @@ def normalize_block(hog, block_size):
   block_size: kích thước block (theo đơn vị cell) để chuẩn hóa theo từng block. 
               VD: (2 x 2) tức mỗi block gồm 2 cell x 2 cell
   '''
-  hog_feature_vector=[]
+  hog_feature_vector = deque([])
   hog_row, hog_col, bins = hog.shape
   block_row, block_col = block_size
 
   for i in range(0, hog_row - block_row + 1, 1):
-    hog_feature_row = []
+    hog_feature_row = deque([])
     for j in range(0, hog_col - block_col + 1, 1):
       block = hog[i : i + block_row, j : j + block_col] 
       block = block.flatten() # flatten từng block, mỗi block là 1 vector 36 phần tử (do mỗi cell là mảng 9 phần tử)
@@ -82,18 +83,18 @@ def normalize_block(hog, block_size):
 
   hog_feature_vector=np.array(hog_feature_vector)
   # mỗi ảnh 64 x 128 có 8 x 16 cell, tức 7 x 15 = 105 block. 
-  # mỗi block là vector 36 phần tử => HOG feature vector có 36 x 105 = 3780 phàn tử
+  # mỗi block là vector 36 phần tử => HOG feature vector có 36 x 105 = 3780 phần tử
   return hog_feature_vector
 
-def resize_closest(gray, cell_size):
-  w = int(gray.shape[1]/cell_size[1])*cell_size[1]
-  h = int(gray.shape[0]/cell_size[0])*cell_size[0]
+def resize_closest(gray, cell_size, scale = 1):
+  w = int(gray.shape[1]*scale//cell_size[1])*cell_size[1]
+  h = int(gray.shape[0]*scale//cell_size[0])*cell_size[0]
   if w < 64:
-    gray = cv2.resize(gray, (64, h))
+    gray = cv2.resize(gray, (64, h), interpolation = cv2.INTER_AREA)
   elif h < 128:
-    gray = cv2.resize(gray, (w, 128))
+    gray = cv2.resize(gray, (w, 128), interpolation = cv2.INTER_AREA)
   else:
-    gray = cv2.resize(gray, (w, h))
+    gray = cv2.resize(gray, (w, h), interpolation = cv2.INTER_AREA)
   return gray
 
 def extract_hog_feature_vector(gray, cell_size, block_size, resize = True, flatten = True):
@@ -102,22 +103,19 @@ def extract_hog_feature_vector(gray, cell_size, block_size, resize = True, flatt
   cell_size: kích thước cell. VD: (8 x 8)
   block_size: kích thước block tính theo đơn vị cell. VD: (2 x 2) tức mỗi block gồm 2 cell x 2 cell
   '''
-  if resize:
+  if resize: # resize ảnh về kích thước 64 x 128
     if gray.shape[0] != 128 or gray.shape[1] != 64:
       gray = cv2.resize(gray, (64, 128))
-  else:
+  else: # resize ảnh về kích thước gần nhất chia hết cho số cell
     gray = resize_closest(gray, cell_size)
-
+    
   row, col = gray.shape
   cell_row, cell_col = cell_size
-  #Xử lý trường hợp rol, cow k chia hết cho cell_size
-  row=(row//cell_row)*cell_row
-  col=(col//cell_col)*cell_col
 
   G, theta = get_gradient(gray) # Tính độ lớn và hướng của gradient cho ảnh mức xám
-  hog = []
+  hog = deque([])
   for i in range(0, row, cell_row): # Duyệt qua từng cell và tính hog của từng cell
-    hog_row = []
+    hog_row = deque([])
     for j in range(0, col, cell_col):
       G_cell = G[i : i + cell_row, j : j + cell_col]
       theta_cell = theta[i : i + cell_row, j : j + cell_col]
