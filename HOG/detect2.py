@@ -175,5 +175,5 @@ if True:  # Lưu file csv
 
 import cProfile
 if __name__ == "__main__":
-    cProfile.run("main()")
-    #main()
+    #cProfile.run("main()")
+    main()
