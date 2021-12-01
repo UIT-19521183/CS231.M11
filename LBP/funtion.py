@@ -82,3 +82,34 @@ def sliding_windows(neq_img, window_size, step_size):
     for y in range(0, max_y, step_size[0]):
       windows.append([x, y, window_size[0], window_size[1]])
   return windows
+
+  # Đọc các ảnh không chứa người
+def read_hard_negative_images(neg_dir, hard_neg_limit, clf):
+  neg_images_dir = neg_dir + '/images'
+  X, y = [], []
+
+  windows = []; shape = (0, 0)
+  hard_neg_count = 0
+
+  for neg_image in os.listdir(neg_images_dir):
+    img = cv2.imread(neg_images_dir+'/'+neg_image)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Nếu shape của ảnh thay đổi lưu shape mới của ảnh và tạo các cửa số trên ảnh dựa trên shape mới
+    if shape != img.shape:
+      shape = img.shape
+      windows = sliding_windows(img, (64, 128), (64, 128))
+    for win in windows:
+      cropped = crop_image(gray, win) # cắt ảnh ra từ cửa sổ và trích xuất đặc trưng HOG (ảnh này chắc chắn không có người)
+      feature = calc_lbp(cropped)
+      feature_new = feature.reshape(1, -1)
+      #feature_=np.array([feature])
+      #feature = extract_hog_feature_vector(cropped, (8, 8), (2, 2))
+      if clf.predict(feature_new) == 1: # nhưng nếu model đã train predict là có người (tức là ảnh này khó)
+        X.append(feature)
+        y.append(0) # thêm đặc trưng và gắn nhãn là 0 để sau đó train thêm
+        hard_neg_count += 1
+        if hard_neg_count == hard_neg_limit:
+          break
+
+  return X, y, hard_neg_count
