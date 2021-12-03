@@ -114,3 +114,45 @@ def read_hard_negative_images(neg_dir, hard_neg_limit, clf):
           break
 
   return X, y, hard_neg_count
+
+
+
+  def read_images_test(pos_dir, neg_dir):
+
+    pos_images_dir = pos_dir + '/images'
+    pos_annotations_dir = pos_dir + '/annotations'
+    neg_images_dir = neg_dir + '/images'
+    neg_annotations_dir = neg_dir + '/annotations'
+
+    pos_features, neg_features = [], []
+    pos_count, neg_count = 0, 0
+
+    # Đọc từng ảnh từ thư mục images và file json tương ứng trong thư mục annotations
+    for pos_image in os.listdir(pos_images_dir):
+      pos_annotation = open(pos_annotations_dir+'/'+pos_image[:-3]+'json')
+      objects = json.load(pos_annotation)
+      img = cv2.imread(pos_images_dir+'/'+pos_image)
+      gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+      # Với từng đối tượng được gắn nhãn tron file json
+      for obj in objects:
+        if obj['lbl'] == 'person': 
+          cropped = crop_image(gray, obj['pos'])
+          hist_lbp = calc_lbp(cropped)
+          pos_features.append(hist_lbp) 
+          pos_count += 1 
+
+    for neg_image in os.listdir(neg_images_dir):
+      img = cv2.imread(neg_images_dir+'/'+neg_image)
+      gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+      # Mỗi ảnh không có người đều tạo 10 cửa số ngẫu nhiên kích thước 64 x 128
+      windows = random_windows(img, 10)
+      for win in windows:
+        cropped = crop_image(gray, win) # cắt ảnh ra từ các cửa sổ ngẫu nhiên và trích xuất đặc trưng HOG
+        feature = calc_lbp(cropped)
+        neg_features.append(feature)
+        neg_count += 1 
+
+    
+    return pos_features, neg_features, pos_count, neg_count

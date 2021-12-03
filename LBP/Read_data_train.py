@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 from sklearn.utils import shuffle
-from sklearn.externals import joblib
+import joblib
 import argparse
 from function import *
 
