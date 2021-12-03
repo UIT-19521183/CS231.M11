@@ -5,14 +5,14 @@ from Read_data_train import *
 
 
 parser = argparse.ArgumentParser(description='Parse Detection Directory')
-parser.add_argument('--input', help='Path to directory containing images for input')
-parser.add_argument('--output', help='Path to directory for output')
-parser.add_argument('--hinput', help='Path to directory for hard input')
-parser.add_argument('--houtput', help='Path to directory for hard output')
+parser.add_argument('-i', '--input', help='Path to directory containing images for input')
+parser.add_argument('-o', '--output', help='Path to directory for output')
+parser.add_argument('-h', '--hinput', help='Path to directory for hard input')
+parser.add_argument('-k', '--houtput', help='Path to directory for hard output')
 
 args = parser.parse_args()
-X = pd.read_csv(args.input)
-y = pd.read_csv(args.output)
+X = pd.read_csv(args.i)
+y = pd.read_csv(args.o)
 
 X_new = X.iloc[:, 1:]
 y_new = y.iloc[:, 1:]
@@ -69,8 +69,8 @@ y_hard = np.concatenate((y_hard, y), axis = 0)
 print('Continue training hard negative images')
 print('Number of negative images:', hard_neg_count)
 
-X_hard = pd.read_csv(args.hinput)
-y_hard = pd.read_csv(args.houtput)
+X_hard = pd.read_csv(args.h)
+y_hard = pd.read_csv(args.k)
 
 X_hard_new = X_hard.iloc[:, 1:]
 y_hard_new = y_hard.iloc[:, 1:]
