@@ -1,0 +1,13 @@
+_Phân loại theo số lượng người trong ảnh:
+	+ easy: 1-2 người
+	+ medium: 3-5 người
+	+ hard: >5 người
+_Phân loại theo chiều cao người trong ảnh:
+	+ small: < 1/4 chiều cao ảnh 
+	+ big: >= 1/4 chiều cao ảnh
+
+
+=> Tổng cộng: 16 ảnh
+	+ easy: 6 ảnh (3 small, 3 big)
+	+ medium: 6 ảnh (3 small, 3 big)
+	+ hard: 4 ảnh (2 small, 2 big)
