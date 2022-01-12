@@ -5,14 +5,10 @@ from sklearn.utils import shuffle
 import joblib
 import argparse
 from function import *
+from function_new import *
 
-parser = argparse.ArgumentParser(description='Parse Training Directory')
-parser.add_argument('--path', help='Path to directory contraining training images')
-
-args = parser.parse_args()
-train_dir = args.path
-pos_dir = os.path.join(train_dir, 'pos')
-neg_dir = os.path.join(train_dir, 'neg')
+pos_dir = 'Path to positive image'
+neg_dir = 'Path to negative image'
 
 X, y, pos_count, neg_count = read_images(pos_dir, neg_dir)
 X, y = np.array(X), np.array(y)
