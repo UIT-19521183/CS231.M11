@@ -42,9 +42,9 @@ class RoiPoolingConv(Layer):
 
     def compute_output_shape(self, input_shape):
         if self.dim_ordering == 'th':
-            return None, self.num_rois, self.nb_channels, self.pool_size, int(self.pool_size*2.5)
+            return None, self.num_rois, self.nb_channels, self.pool_size, self.pool_size
         else:
-            return None, self.num_rois, self.pool_size, int(self.pool_size*2.5), self.nb_channels
+            return None, self.num_rois, self.pool_size, self.pool_size, self.nb_channels
 
     def call(self, x, mask=None):
 
@@ -65,12 +65,15 @@ class RoiPoolingConv(Layer):
             h = rois[0, roi_idx, 3]
             
             row_length = w / float(self.pool_size)
-            col_length = h / float(int(self.pool_size*2.5))
+            col_length = h / float(self.pool_size)
 
             num_pool_regions = self.pool_size
 
+            #NOTE: the RoiPooling implementation differs between theano and tensorflow due to the lack of a resize op
+            # in theano. The theano implementation is much less efficient and leads to long compile times
+
             if self.dim_ordering == 'th':
-                for jy in range(int(self.pool_size*2.5)):
+                for jy in range(num_pool_regions):
                     for ix in range(num_pool_regions):
                         x1 = x + ix * row_length
                         x2 = x1 + row_length
@@ -99,11 +102,11 @@ class RoiPoolingConv(Layer):
                 w = K.cast(w, 'int32')
                 h = K.cast(h, 'int32')
 
-                rs = tf.image.resize(img[:, y:y+h, x:x+w, :], (self.pool_size, int(self.pool_size*2.5)))
+                rs = tf.image.resize(img[:, y:y+h, x:x+w, :], (self.pool_size, self.pool_size))
                 outputs.append(rs)
 
         final_output = K.concatenate(outputs, axis=0)
-        final_output = K.reshape(final_output, (1, self.num_rois, self.pool_size, int(self.pool_size*2.5), self.nb_channels))
+        final_output = K.reshape(final_output, (1, self.num_rois, self.pool_size, self.pool_size, self.nb_channels))
 
         if self.dim_ordering == 'th':
             final_output = K.permute_dimensions(final_output, (0, 1, 4, 2, 3))
