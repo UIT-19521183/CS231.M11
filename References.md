@@ -12,7 +12,9 @@
 4. Link về Segmentation:
   - https://github.com/adelizer/pedestrians-detection
   - https://github.com/divamgupta/image-segmentation-keras
-5. Link về Mask RCNN
+5. Link về Faster R-CNN:
+  - https://github.com/kbardool/keras-frcnn
+6. Link về Mask R-CNN
 - https://github.com/sahibdhanjal/Mask-RCNN-Pedestrian-Detection
 - https://machinelearningmastery.com/how-to-train-an-object-detection-model-with-keras/
 - https://github.com/matterport/Mask_RCNN
