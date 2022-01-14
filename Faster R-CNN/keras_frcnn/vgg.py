@@ -100,24 +100,22 @@ def classifier(base_layers, input_rois, num_rois, nb_classes = 21, trainable=Fal
     # compile times on theano tend to be very high, so we use smaller ROI pooling regions to workaround
 
     if K.backend() == 'tensorflow':
-        pooling_regions = 4
-        input_shape = (num_rois,None,None,512)
+        pooling_regions = 7
+        input_shape = (num_rois,7,7,512)
     elif K.backend() == 'theano':
-        pooling_regions = 4
-        input_shape = (num_rois,512,None,None)
+        pooling_regions = 7
+        input_shape = (num_rois,512,7,7)
 
     out_roi_pool = RoiPoolingConv(pooling_regions, num_rois)([base_layers, input_rois])
 
     out = TimeDistributed(Flatten(name='flatten'))(out_roi_pool)
     out = TimeDistributed(Dense(4096, activation='relu', name='fc1'))(out)
-    out = TimeDistributed(Dropout(0.4))(out)
+    out = TimeDistributed(Dropout(0.5))(out)
     out = TimeDistributed(Dense(4096, activation='relu', name='fc2'))(out)
-    out = TimeDistributed(Dropout(0.4))(out)
+    out = TimeDistributed(Dropout(0.5))(out)
 
     out_class = TimeDistributed(Dense(nb_classes, activation='softmax', kernel_initializer='zero'), name='dense_class_{}'.format(nb_classes))(out)
     # note: no regression target for bg class
     out_regr = TimeDistributed(Dense(4 * (nb_classes-1), activation='linear', kernel_initializer='zero'), name='dense_regress_{}'.format(nb_classes))(out)
 
     return [out_class, out_regr]
-
-
